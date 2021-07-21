@@ -96,6 +96,40 @@ def get_available_letters(letters_guessed):
     return available_letters
       
 
+def introduce(warnings_left, guesses_left):
+    """
+    Parameters:
+        warnings_left: int > 0
+        guesses_left: int > 0
+    introduce user to the game, along with warning_left and guesses_left(initially).
+    prints out basic information regarding game.  
+    
+    """
+    print('Welcome to the game Hangman!')
+    print('I am thinking of a word that is', len(secret_word), 'letters long.')
+    print('You have', warnings_left, 'warnings left.')
+ 
+def print_score(secret_word):
+    '''
+    Parameters
+    ----------
+    secret_word : str
+        word initially chosen at random to be guessed by user.
+    Returns
+    -------
+    None, calculate and print score
+
+    '''
+    unique_letters = []
+    for letter in secret_word:
+        if letter not in unique_letters:
+            unique_letters.append(letter)
+
+    total_score = guesses_left * len(unique_letters)
+    print("Congratulations, you won!")
+    print("Your total score for this game is:", total_score)
+    
+    
 def hangman(secret_word):
     '''
     secret_word: string, the secret word to guess.
@@ -124,30 +158,21 @@ def hangman(secret_word):
     warnings_left = 3
     letters_guessed = []
     
-    print('Welcome to the game Hangman!')
-    print('I am thinking of a word that is', len(secret_word), 'letters long.')
-    print('You have', warnings_left, 'warnings left.')
-    print('\n--------------\n')
-    print('You have', guesses_left ,'guesses left.')
-    print('Available letters:', string.ascii_lowercase, end="")
+    introduce(warnings_left, guesses_left)
     
     while guesses_left > 0:
+        print('-' * 15)
+        print('You have', guesses_left ,'guesses left.')
+        print('Available letters:', get_available_letters(letters_guessed), end="")
         guessed_letter = input('Please guess a letter: ')
-
-        if guessed_letter.isalpha() and len(guessed_letter) == 1 and guessed_letter not in letters_guessed:
+        guess_is_valid = guessed_letter.isalpha() and len(guessed_letter) == 1 and guessed_letter not in letters_guessed
+        
+        if guess_is_valid:
             letters_guessed.append(guessed_letter)
-            
             if guessed_letter in secret_word:
                 print('Good guess:', get_guessed_word(secret_word, letters_guessed))
                 if is_word_guessed(secret_word, letters_guessed):
-                    unique_letters = []
-                    for letter in secret_word:
-                        if letter not in unique_letters:
-                            unique_letters.append(letter)
-
-                    total_score = guesses_left * len(unique_letters)
-                    print("Congratulations, you won!")
-                    print("Your total score for this game is:", total_score)
+                    print_score(secret_word)
                     break
             else:
                 if guessed_letter in ['a', 'e', 'i', 'o', 'u']:
@@ -160,6 +185,7 @@ def hangman(secret_word):
                 print("Oops! You have already guessed that letter.", end="")
             else:
                  print("Oops! That's not a valid letter.", end="")
+                 
             if warnings_left > 0:
                 warnings_left -= 1
                 print("You have", warnings_left, "warnings left.")
@@ -169,24 +195,9 @@ def hangman(secret_word):
             print(get_guessed_word(secret_word, letters_guessed))
         
         
-        print('\n--------------\n')
-        
     if guesses_left == 0:
         print("\nSorry, You have ran out of guesses. The word was " + secret_word + ".")
-    else:
-        print('You have', guesses_left ,'guesses left.')
-        print('Available letters:', get_available_letters(letters_guessed), end="")
-
     
-
-# When you've completed your hangman function, scroll down to the bottom
-# of the file and uncomment the first two lines to test
-#(hint: you might want to pick your own
-# secret_word while you're doing your own testing)
-
-
-# -----------------------------------
-
 
 
 def match_with_gaps(my_word, other_word):
