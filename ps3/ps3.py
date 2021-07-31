@@ -11,12 +11,12 @@ import math
 import random
 import string
 
-VOWELS = 'aeiou'
+VOWELS = 'aeiou*'
 CONSONANTS = 'bcdfghjklmnpqrstvwxyz'
 HAND_SIZE = 7
 
 SCRABBLE_LETTER_VALUES = {
-    'a': 1, 'b': 3, 'c': 3, 'd': 2, 'e': 1, 'f': 4, 'g': 2, 'h': 4, 'i': 1, 'j': 8, 'k': 5, 'l': 1, 'm': 3, 'n': 1, 'o': 1, 'p': 3, 'q': 10, 'r': 1, 's': 1, 't': 1, 'u': 1, 'v': 4, 'w': 4, 'x': 8, 'y': 4, 'z': 10
+    'a': 1, 'b': 3, 'c': 3, 'd': 2, 'e': 1, 'f': 4, 'g': 2, 'h': 4, 'i': 1, 'j': 8, 'k': 5, 'l': 1, 'm': 3, 'n': 1, 'o': 1, 'p': 3, 'q': 10, 'r': 1, 's': 1, 't': 1, 'u': 1, 'v': 4, 'w': 4, 'x': 8, 'y': 4, 'z': 10, '*': 0
 }
 
 # -----------------------------------
@@ -119,7 +119,7 @@ def display_hand(hand):
     for letter in hand.keys():
         for j in range(hand[letter]):
              print(letter, end=' ')      # print all on the same line
-    print()                              # print an empty line
+    
 
 #
 # Make sure you understand how this function works and what it does!
@@ -144,7 +144,16 @@ def deal_hand(n):
 
     for i in range(num_vowels):
         x = random.choice(VOWELS)
+        while x == '*' and hand.get(x, 0) != 0:
+            x = random.choice(VOWELS)
         hand[x] = hand.get(x, 0) + 1
+        
+    if hand.get('*', 0) == 0:
+        x = random.choice(''.join(hand.keys()))
+        while hand[x] > 1:
+            x = random.choice(''.join(hand.keys()))
+        hand.pop(x)
+        hand['*'] = 1
     
     for i in range(num_vowels, n):    
         x = random.choice(CONSONANTS)
@@ -193,11 +202,25 @@ def is_valid_word(word, hand, word_list):
     word_list: list of lowercase strings
     returns: boolean
     """
-    word_dict = {}
+    word_dict = {}  
     for x in word.lower():
         word_dict[x] = word_dict.get(x, 0) + 1
+       
+    index = word.find('*')
+    if index != -1:
+        matched = False
+        for vowel in VOWELS:
+            new_word = word[:index] + vowel + word[index + 1:]
+            if new_word.lower() in word_list:
+                matched = True
+                break
+    else:
+        if word in word_list:
+            matched = True
+        else:
+            matched = False
     
-    if word.lower() not in word_list:
+    if not matched:
         return False
     else:
         for x in word_dict.keys():
@@ -218,7 +241,7 @@ def calculate_handlen(hand):
     returns: integer
     """
     
-    pass  # TO DO... Remove this line when you implement this function
+    return sum(hand.values())
 
 def play_hand(hand, word_list):
 
@@ -251,35 +274,47 @@ def play_hand(hand, word_list):
       
     """
     
-    # BEGIN PSEUDOCODE <-- Remove this comment when you implement this function
     # Keep track of the total score
-    
+    total_score = 0
+    n = calculate_handlen(hand)
     # As long as there are still letters left in the hand:
-    
+    while n > 0:
         # Display the hand
-        
+        print()
+        print('Current hand:', end= ' ') 
+        display_hand(hand)
         # Ask user for input
-        
+        word = input('Enter word, or "!!" to indicate that you are finished: ')
         # If the input is two exclamation points:
-        
+        if word == '!!':
             # End the game (break out of the loop)
-
+            break
             
         # Otherwise (the input is not two exclamation points):
-
+        else:
             # If the word is valid:
-
+            if is_valid_word(word, hand, word_list):
                 # Tell the user how many points the word earned,
                 # and the updated total score
-
+                score_earned = get_word_score(word, n)
+                total_score += score_earned
+                print('"' + word + '"' + " earned " + str(score_earned) + ". Total: " + str(total_score))
             # Otherwise (the word is not valid):
+            else:
                 # Reject invalid word (print a message)
+                print('That is not a valid word. Please choose another word.')
                 
             # update the user's hand by removing the letters of their inputted word
+            hand = update_hand(hand, word)
+            n = calculate_handlen(hand)
             
 
     # Game is over (user entered '!!' or ran out of letters),
     # so tell user the total score
+    if n > 0:
+        print('Total score: ' + str(total_score))
+    else:
+        print('Ran out of letters. Total score: ' + str(total_score))
 
     # Return the total score as result of function
 
