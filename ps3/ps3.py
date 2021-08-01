@@ -408,7 +408,6 @@ def play_game(word_list):
     num_hands = int(input('Enter total number of hands: '))
 
     while num_hands > 0:
-        print(num_hands)
         # Shows the current hand, ask the user if want to subsitute it.
         hand = deal_hand(HAND_SIZE)
         if subs and replay:
@@ -432,7 +431,9 @@ def play_game(word_list):
                 replay = False
                 score_replay = play_hand(hand, word_list)
                 if score_replay > score:
-                    total_score -= score + score_replay    
+                    print(score, score_replay, total_score)
+                    total_score = (total_score - score) + score_replay  
+                    print(total_score)
         
         num_hands -= 1
         
